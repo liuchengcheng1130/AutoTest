@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--logback主要用到的标签有三个 logger：日志记录器 用于存放日志对象，定义日志类型和级别等  appender：用于指定日志输出目的地，也就是日志存的媒介 这个媒介可以是控制台，可以是文件 也可以是远程套节字服务器 layout 用来格式化日志信息输出-->
+<!--
+configuration是logback的根标签
+scan="true" 表示配置文件发生改变会自动加载
+configuration="60 seconds"  检测配置文件修改间隔时间 默认单位是毫秒 这里可以自己添加配置
+debug="false" 设置为true 表示打印logback自身实时运行信息 这里不需要设置为true 因为logback自身运行很稳定
+-->
+
+<configuration scan="true" configuration="60 seconds" debug="false">
+
+    <!--定义一些参数常量-->
+    <!--定义日志输出位置-->
+    <property name="log.filepath" value="E:\log" />
+    <!--
+    定义日志格式展示
+    %d{yyyy-MM-dd HH:mm:ss.SSS} 定义一条日志的展示时间
+    [%thread] 表示执行日志的线程
+    %-5level 表示空出5格 展示日志级别
+    %logger{100} 表示展示类名（全限定类名） 展示超过100 后面就不展示了
+    %msg 表示日志信息
+    %n 表示换行
+     <property name="log.pattern" value="%highlight(%date{yyyy-MM-dd HH:mm:ss.SSS}) | %highlight(%-5level) | %highlight(%thread) | %highlight(%logger) | %msg%n"/>
+     <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{100} - %msg%n"/>
+    -->
+
+    <!--定义输出日志媒介-->
+    <!--定义控制台输出-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <!--appender只负责日志调度输出，具体格式化工作交给encoder-->
+    <encoder>
+        <!--pattern定义日志输出格式-->
+        <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{100} - %msg%n</pattern>
+    </encoder>
+    </appender>
+
+    <!--
+    定义不同级别日志输出媒介
+    logback日志级别 trace < debug < info < error 一般开发项目情况下 只需要debug，info，error日志即可 三个不同级别日志放在不同日志文件中
+    -->
+    <!--定义debug级别日志输出,RollingFileAppender表示滚动日志，可以按天或者按月生成日志文件-->
+    <appender name="DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--文件路径-->
+        <file>${log.filepath}/debug.log</file>
+        <!--定义滚动策略,TimeBasedRollingPolicy基于时间滚动策略-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--设置按照每分钟的方式生成文件 如果文件是以.gz结尾 logback会帮助压缩文件-->
+            <fileNamePattern>${log.filepath}/debug_%d{yyyy-MM-dd_HH_mm}.log.gz</fileNamePattern>
+            <!--设置文件最大保存历史数据 默认30天-->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <!--pattern定义日志输出格式-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{100} - %msg%n</pattern>
+        </encoder>
+        <!--appender name="DEBUG" 只需要记录debug级别日志 对于其他日志不需要 所以加个过滤器-->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <!--是debug日志 记录-->
+            <onMatch>ACCEPT</onMatch>
+            <!--不是debug日志 不记录-->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <!--定义info级别日志输出,RollingFileAppender表示滚动日志，可以按天或者按月生成日志文件-->
+    <appender name="INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--文件路径-->
+        <file>${log.filepath}/info.log</file>
+        <!--定义滚动策略,TimeBasedRollingPolicy基于时间滚动策略-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--设置按照每分钟的方式生成文件 如果文件是以.gz结尾 logback会帮助压缩文件-->
+            <fileNamePattern>${log.filepath}/info_%d{yyyy-MM-dd_HH_mm}.log.gz</fileNamePattern>
+            <!--设置文件最大保存历史数据 默认30天-->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <!--pattern定义日志输出格式-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{100} - %msg%n</pattern>
+        </encoder>
+        <!--appender name="INFO" 只需要记录info级别日志 对于其他日志不需要 所以加个过滤器-->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <!--是info日志 记录-->
+            <onMatch>ACCEPT</onMatch>
+            <!--不是info日志 不记录-->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <!--定义error级别日志输出,RollingFileAppender表示滚动日志，可以按天或者按月生成日志文件-->
+    <appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--文件路径-->
+        <file>${log.filepath}/error.log</file>
+        <!--定义滚动策略,TimeBasedRollingPolicy基于时间滚动策略-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--设置按照每分钟的方式生成文件 如果文件是以.gz结尾 logback会帮助压缩文件-->
+            <fileNamePattern>${log.filepath}/error_%d{yyyy-MM-dd_HH_mm}.log.gz</fileNamePattern>
+            <!--设置文件最大保存历史数据 默认30天-->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <!--pattern定义日志输出格式-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{100} - %msg%n</pattern>
+        </encoder>
+        <!--appender name="ERROR" 只需要记录error级别日志 对于其他日志不需要 所以加个过滤器-->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <!--是error日志 记录-->
+            <onMatch>ACCEPT</onMatch>
+            <!--不是error日志 不记录-->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <!--根日志记录器,表示所有包下面的都会被记录到日志-->
+    <root level="DEBUG">
+        <appender-ref ref="console"/>
+    </root>
+    <!--
+    配置自己写的代码日志记录器 name=“com.test.common” 表示只记录该包下的代码产生的日志才会被记录 其他不会被记录 level="DEBUG"表示日志级别为DEBUG additivity="true"表示自定义记录器日志输出
+    -->
+    <logger name="com.test.common" level="DEBUG" additivity="true">
+        <appender-ref ref="DEBUG"/>
+        <appender-ref ref="INFO"/>
+        <appender-ref ref="ERROR"/>
+    </logger>
+
+    <!---->
+    <!---->
+
+</configuration>
